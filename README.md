@@ -86,6 +86,7 @@ eng_summurize/
 ├── app.py              # Flask 애플리케이션 메인
 ├── tesseract.py       # OCR 및 요약 처리
 ├── translate.py       # 번역 및 단어장 기능
+├── 모델 파일  # 저장한 모델 파일
 │
 ├── templates/         # HTML 템플릿
 │   └── index.html    # 메인 페이지
