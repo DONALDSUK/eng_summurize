@@ -1,0 +1,33 @@
+# 가상환경
+eng-summurize/
+venv/
+env/
+.env/
+
+# Python 캐시 파일
+__pycache__/
+*.py[cod]
+*$py.class
+
+# T5 모델 파일
+t5_korean_summarization_model/
+*.pt
+*.pth
+*.bin
+*.zip
+
+# 업로드된 이미지
+uploads/
+
+# IDE 설정
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# 로그 파일
+*.log
+
+# 기타 임시 파일
+*.bak
+*.tmp 

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Translation App</title>
+    <script src="{{ url_for('static', filename='firebase.js') }}" type="module"></script>
+    <script src="{{ url_for('static', filename='main.js') }}" type="module"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        h1 {
+            margin-top: 40px;
+            color: #333;
+            font-size: 32px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px 0;
+            gap: 20px;
+        }
+
+        .upload-container,
+        .results-container {
+            width: 50%;
+        }
+
+        .upload-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .results-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .translated-text-block,
+        .translated-summary-block {
+            margin-bottom: 20px;
+        }
+
+        .translated-text-block h2,
+        .translated-summary-block h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .translated-text-block p,
+        .translated-summary-block p {
+            font-size: 18px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* 이미지 업로드 버튼 커스터마이즈 */
+        input[type="file"] {
+            display: none;
+        }
+
+        label {
+            padding: 12px 30px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #8a46f7;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 20px 0;
+            display: block;
+            text-align: center;
+        }
+
+        label:hover {
+            background-color: #6f38c1;
+        }
+
+        .image-preview {
+            display: none;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            height: auto;
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        /* 이미지가 나타날 때 애니메이션 */
+        .image-preview img.show {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #8a46f7;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 20px 0;
+            display: block;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #6f38c1;
+        }
+
+        /* 번역 입력 컨테이너 스타일 */
+        .translate-container {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .translate-container input[type="text"] {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .translate-container button {
+            background-color: #4CAF50; /* 버튼 배경색 */
+        }
+
+        .translate-container button:hover {
+            background-color: #45a049; /* 버튼 호버 색상 */
+        }
+
+        #translate-word {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+        }
+        .vocabulary-container {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>영어 요약 번역하기</h1>
+
+    <div class="container">
+        <!-- 이미지 업로드 및 미리보기 -->
+        <div class="upload-container">
+            <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                <label for="imageUpload">이미지 업로드</label>
+                <input type="file" id="imageUpload" name="image" accept="image/*" />
+                <button type="submit">번역 & 요약하기</button>
+            </form>
+
+            <!-- 이미지 미리보기 -->
+            <div class="image-preview" id="imagePreviewContainer">
+                <img id="imagePreview" src="" alt="Image Preview">
+            </div>
+        </div>
+
+        <!-- 번역된 결과 표시 -->
+        <div class="results-container">
+            <!-- 번역된 원본 내용 블록 -->
+            <div class="translated-text-block">
+                <h2>번역된 원본 내용:</h2>
+                <p id="translated-text">번역된 원본 내용이 여기에 표시됩니다.</p>
+            </div>
+        </div>
+
+        <div class="results-container">
+            <!-- 요약된 내용 블록 -->
+            <div class="translated-summary-block">
+                <h2>요약된 내용:</h2>
+                <p id="translated-summary">요약된 내용이 여기에 표시됩니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="translate-container">
+        <input type="text" id="translate" name="tran" placeholder="번역할 텍스트 입력">
+        <button id="translateButton">번역하기</button>
+        <p id="translate-word"></p>
+    </div>
+    
+    <div class="vocabulary-container">
+        <h2>단어장</h2>
+        <ul id="vocabularyList"></ul> <!-- 단어장을 표시할 부분 -->
+    </div>
+    
+</body>
+</html>
