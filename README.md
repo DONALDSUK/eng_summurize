@@ -50,7 +50,7 @@ flowchart TD
     B[Flask 웹서버]
     C[Tesseract OCR 엔진]
     D[텍스트 전처리]
-    E[Google Translator API]
+    E[Google Translator 라이브러리]
     F[T5 요약 모델]
     G[결과 저장/표시]
     
